@@ -1,0 +1,9 @@
+*~
+.temp/
+*.json.bak
+*.tar
+consul-template
+goreplace
+gocrond
+.idea/
+venv/
