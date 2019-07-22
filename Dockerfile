@@ -4,10 +4,10 @@ MAINTAINER Dariya Mykhaylyshyn <mykhaylyshyn.dariya@pdffiller.team>
 RUN yum update -y
 RUN yum -y install python awscli perl
 
-##instal percona
-RUN yum -y install http://www.percona.com/redir/downloads/percona-release/redhat/0.1-6/percona-release-0.1-6.noarch.rpm
-RUN yum update percona-release -y
-RUN yum -y install percona-toolkit
+##install percona
+RUN yum -y install https://www.percona.com/downloads/percona-toolkit/2.2.19/RPM/percona-toolkit-2.2.19-1.noarch.rpm && \
+    yum update percona-release -y && \
+    yum -y install percona-toolkit
 
 COPY entrypoint.sh /usr/bin/
 
