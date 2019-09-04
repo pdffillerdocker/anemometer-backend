@@ -41,7 +41,7 @@ for instanceID in ${instanceIDs}; do
    nextstep="yes"
    commontemporary="/tmp/slow-${instanceID}-$datestring.log"
    rm -f "${commontemporary}"
-   info "Start to download ${instanceID} slowlogs"
+   info "Start to download slowlogs on ${instanceID}"
    for suff in ${suffixes} ; do
         temporaryfile="/tmp/slow-${instanceID}.${suff}"
         rm -f "${temporaryfile}"
@@ -49,11 +49,11 @@ for instanceID in ${instanceIDs}; do
         downloadLog ${instanceID} slowquery/mysql-slowquery."${suff}" ${temporaryfile}
         temporaryfilesize=$(stat -c%s "$temporaryfile")
         if [[ ${temporaryfilesize} -le ${CHECKSIZE} ]] ; then
-            echo "ERROR: download ${temporaryfile} from ${instanceID} because of file's size is less than ${CHECKSIZE} bytes"
+            echo "ERROR: ${instanceID} - the problem to download ${temporaryfile}. The file's size is less than ${CHECKSIZE} bytes"
             nextstep="no"
             break
         else
-            info "Downloading is finished  OK. The size of  ${temporaryfile} = ${temporaryfilesize} bytes. Start to add it into  ${commontemporary}"
+            info "Downloading finished OK. The size of ${temporaryfile} = ${temporaryfilesize} bytes. Start to add it into  ${commontemporary}"
             cat ${temporaryfile} >> ${commontemporary}
             rm -r ${temporaryfile}
             commontemporaryfilesize=$(stat -c%s "$commontemporary")
@@ -72,7 +72,7 @@ for instanceID in ${instanceIDs}; do
        statuscode=$?
        info "statuscode=${statuscode} of percona digest tool"
        if [ ${statuscode} -gt 0 ] ; then
-          echo "ERROR: digesting slowlogs from ${instanceID}"
+          echo "ERROR: ${instanceID} to digest slowlogs"
        else
           info "Digest of ${commontemporary} was successful"
           rm -f "${commontemporary}"
