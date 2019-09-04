@@ -33,36 +33,36 @@ function downloadLog () {
 }
 
 for hour in $(seq 0 23) ; do suffixes="${suffixes} log.$hour" ; done
-info "INFO: ${ENVNAME}. The list of suffixes for slowlogs files ${suffixes} were created"
-info "INFO: ${ENVNAME}. Lets describe RDS instances in the account"
+info "INFO: ${ENV_NAME} The list of suffixes for slowlogs files ${suffixes} were created"
+info "INFO: ${ENV_NAME} Lets describe RDS instances in the account"
 instanceIDs=$(/usr/bin/aws rds  describe-db-instances --region us-east-1 --query 'DBInstances[*].[DBInstanceIdentifier]' --output text)
-info "INFO: ${ENVNAME}. Such instances was found : ${instanceIDs}"
+info "INFO: ${ENV_NAME} Such instances was found : ${instanceIDs}"
 for instanceID in ${instanceIDs}; do
    nextstep="yes"
    commontemporary="/tmp/slow-${instanceID}-$datestring.log"
    rm -f "${commontemporary}"
-   info "INFO: ${ENVNAME} ${instanceID}. Start to download slowlogs"
+   info "INFO: ${ENV_NAME} ${instanceID} Start to download slowlogs"
    for suff in ${suffixes} ; do
         temporaryfile="/tmp/slow-${instanceID}.${suff}"
         rm -f "${temporaryfile}"
-        info "INFO: ${ENVNAME} ${instanceID}. Downloading  ${temporaryfile}"
+        info "INFO: ${ENV_NAME} ${instanceID} Downloading  ${temporaryfile}"
         downloadLog ${instanceID} slowquery/mysql-slowquery."${suff}" ${temporaryfile}
         temporaryfilesize=$(stat -c%s "$temporaryfile")
         if [[ ${temporaryfilesize} -le ${CHECKSIZE} ]] ; then
-            echo "ERROR: ${ENVNAME} ${instanceID}. The problem is with downloading ${temporaryfile}. The file's size is less than ${CHECKSIZE} bytes"
+            echo "ERROR: ${ENV_NAME} ${instanceID} The problem is with downloading ${temporaryfile}. The file's size is less than ${CHECKSIZE} bytes"
             nextstep="no"
             break
         else
-            info "INFO: ${ENVNAME} ${instanceID}. Downloading finished OK. The size of ${temporaryfile} = ${temporaryfilesize} bytes. Start to add it into  ${commontemporary}"
+            info "INFO: ${ENV_NAME} ${instanceID} Downloading finished OK. The size of ${temporaryfile} = ${temporaryfilesize} bytes. Start to add it into  ${commontemporary}"
             cat ${temporaryfile} >> ${commontemporary}
             rm -r ${temporaryfile}
             commontemporaryfilesize=$(stat -c%s "$commontemporary")
-            info "INFO: ${ENVNAME} ${instanceID}. Size of collecting file is $commontemporary = $commontemporaryfilesize bytes."
+            info "INFO: ${ENV_NAME} ${instanceID} Size of collecting file is $commontemporary = $commontemporaryfilesize bytes."
         fi
    done
-   info "INFO: ${ENVNAME} ${instanceID}. Finished downloading ${instanceID} slowlogs by hours"
+   info "INFO: ${ENV_NAME} ${instanceID} Finished downloading ${instanceID} slowlogs by hours"
    if [ "${nextstep}" = "yes" ] ; then
-       info "INFO: ${ENVNAME} ${instanceID}. Starting to digest collected file ${commontemporary} and add result into anemometer database"
+       info "INFO: ${ENV_NAME} ${instanceID}. Starting to digest collected file ${commontemporary} and add result into anemometer database"
        /usr/bin/pt-query-digest --user=$ANEMOMETER_MYSQL_USER --password=$ANEMOMETER_MYSQL_PASSWORD \
                                 --review h=$ANEMOMETER_MYSQL_HOST,D=$ANEMOMETER_MYSQL_DB,t=global_query_review \
                                 --history h=$ANEMOMETER_MYSQL_HOST,D=$ANEMOMETER_MYSQL_DB,t=global_query_review_history \
@@ -72,9 +72,9 @@ for instanceID in ${instanceIDs}; do
        statuscode=$?
        info "statuscode=${statuscode} of percona digest tool"
        if [ ${statuscode} -gt 0 ] ; then
-          echo "ERROR: ${ENVNAME} ${instanceID} to digest slowlogs"
+          echo "ERROR: ${ENV_NAME} ${instanceID} to digest slowlogs"
        else
-          info "INFO: ${ENVNAME} ${instanceID}. Digest of ${commontemporary} was successful"
+          info "INFO: ${ENV_NAME} ${instanceID} Digest of ${commontemporary} was successful"
           rm -f "${commontemporary}"
        fi
    fi
