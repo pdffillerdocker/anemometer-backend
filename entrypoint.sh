@@ -41,7 +41,7 @@ for instanceID in ${instanceIDs}; do
    nextstep="yes"
    commontemporary="/tmp/slow-${instanceID}-$datestring.log"
    rm -f "${commontemporary}"
-   info "Start to download slowlogs on ${instanceID}"
+   info "Start to download slowlogs from ${instanceID}"
    for suff in ${suffixes} ; do
         temporaryfile="/tmp/slow-${instanceID}.${suff}"
         rm -f "${temporaryfile}"
@@ -49,7 +49,7 @@ for instanceID in ${instanceIDs}; do
         downloadLog ${instanceID} slowquery/mysql-slowquery."${suff}" ${temporaryfile}
         temporaryfilesize=$(stat -c%s "$temporaryfile")
         if [[ ${temporaryfilesize} -le ${CHECKSIZE} ]] ; then
-            echo "ERROR: ${instanceID} - the problem to download ${temporaryfile}. The file's size is less than ${CHECKSIZE} bytes"
+            echo "ERROR: ${instanceID} - the problem is with downloading ${temporaryfile}. The file's size is less than ${CHECKSIZE} bytes"
             nextstep="no"
             break
         else
