@@ -1,4 +1,18 @@
+### 2.0.3
 
+*Changes :*
+add MIT license
+add verification if slow-log is on
+
+---
+
+### 2.0.2
+
+*Changes :*
+add ENV_NAME variable
+ 
+---
+ 
 ### v2.0.1
 
  *Changes :*
