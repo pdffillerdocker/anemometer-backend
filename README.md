@@ -25,3 +25,7 @@ Image create by launch on ECS or FARGATE container via scheduler
 ### For local debug run command 
 
 `$ docker run -d  -e DEBUGLEVEL="1"  pdffiller/anemometer-backend:tag `
+
+### License
+
+ pdffillerdocker/anemometer-backend is licensed under the [MIT License](https://github.com/pdffillerdocker/anemometer-backend/blob/master/LICENSE)

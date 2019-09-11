@@ -46,7 +46,13 @@ for instanceID in ${instanceIDs}; do
         temporaryfile="/tmp/slow-${instanceID}.${suff}"
         rm -f "${temporaryfile}"
         info "INFO: ${ENV_NAME} ${instanceID} Downloading  ${temporaryfile}"
-        downloadLog ${instanceID} slowquery/mysql-slowquery."${suff}" ${temporaryfile}
+        downloadLogs=$(downloadLog ${instanceID} slowquery/mysql-slowquery."${suff}" ${temporaryfile} 2>&1)
+        statuscode=$?
+        if [ ${statuscode} -gt 0 ] ; then
+            echo "ERROR: ${ENV_NAME} ${instanceID} An error occurred (DBLogFileNotFoundFault) when calling the DownloadDBLogFilePortion operation: DBLog File: slow-log file is not found on the ${instanceID}"
+        else
+            info  "INFO: ${ENV_NAME} ${instanceID} The slow-log is ON"
+        fi
         temporaryfilesize=$(stat -c%s "$temporaryfile")
         if [[ ${temporaryfilesize} -le ${CHECKSIZE} ]] ; then
             echo "ERROR: ${ENV_NAME} ${instanceID} The problem is with downloading ${temporaryfile}. The file's size is less than ${CHECKSIZE} bytes"
