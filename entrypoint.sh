@@ -33,10 +33,10 @@ function downloadLog () {
 }
 
 for hour in $(seq 0 23) ; do suffixes="${suffixes} log.$hour" ; done
-info "INFO: ${ENV_NAME} The list of suffixes for slowlogs files ${suffixes} were created"
-info "INFO: ${ENV_NAME} Lets describe RDS instances in the account"
+info "INFO: ${ENV_NAME} allDB The list of suffixes for slowlogs files ${suffixes} were created"
+info "INFO: ${ENV_NAME} allDB Lets describe RDS instances in the account"
 instanceIDs=$(/usr/bin/aws rds  describe-db-instances --region us-east-1 --query 'DBInstances[*].[DBInstanceIdentifier]' --output text)
-info "INFO: ${ENV_NAME} Such instances was found : ${instanceIDs}"
+info "INFO: ${ENV_NAME} allDB Such instances was found : ${instanceIDs}"
 for instanceID in ${instanceIDs}; do
    nextstep="yes"
    commontemporary="/tmp/slow-${instanceID}-$datestring.log"
