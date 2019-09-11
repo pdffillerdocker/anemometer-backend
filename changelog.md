@@ -1,3 +1,10 @@
+### 2.0.4
+
+*Changes :*
+add definition "allDB" for the info message
+
+---
+
 ### 2.0.3
 
 *Changes :*
