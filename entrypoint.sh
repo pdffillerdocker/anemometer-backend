@@ -50,17 +50,18 @@ for instanceID in ${instanceIDs}; do
         statuscode=$?
         if [ ${statuscode} -gt 0 ] ; then
             echo "ERROR: ${ENV_NAME} ${instanceID} An error occurred (DBLogFileNotFoundFault) when calling the DownloadDBLogFilePortion operation: DBLog File: slow-log file is not found on the ${instanceID}"
+            nextstep="no"
+            break
         else
             info  "INFO: ${ENV_NAME} ${instanceID} The slow-log is ON"
         fi
         temporaryfilesize=$(stat -c%s "$temporaryfile")
         if [[ ${temporaryfilesize} -le ${CHECKSIZE} ]] ; then
             echo "ERROR: ${ENV_NAME} ${instanceID} The problem is with downloading ${temporaryfile}. The file's size is less than ${CHECKSIZE} bytes"
-            nextstep="no"
-            break
         else
             info "INFO: ${ENV_NAME} ${instanceID} Downloading finished OK. The size of ${temporaryfile} = ${temporaryfilesize} bytes. Start to add it into  ${commontemporary}"
             cat ${temporaryfile} >> ${commontemporary}
+            echo >> ${commontemporary}
             rm -r ${temporaryfile}
             commontemporaryfilesize=$(stat -c%s "$commontemporary")
             info "INFO: ${ENV_NAME} ${instanceID} Size of collecting file is $commontemporary = $commontemporaryfilesize bytes."

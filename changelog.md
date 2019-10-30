@@ -1,3 +1,8 @@
+### 2.0.5
+*Changes :*
+delete break from hourly temporaryfilesize checking  
+
+
 ### 2.0.4
 
 *Changes :*
