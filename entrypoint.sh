@@ -61,6 +61,7 @@ for instanceID in ${instanceIDs}; do
         else
             info "INFO: ${ENV_NAME} ${instanceID} Downloading finished OK. The size of ${temporaryfile} = ${temporaryfilesize} bytes. Start to add it into  ${commontemporary}"
             cat ${temporaryfile} >> ${commontemporary}
+            echo >> ${commontemporary}
             rm -r ${temporaryfile}
             commontemporaryfilesize=$(stat -c%s "$commontemporary")
             info "INFO: ${ENV_NAME} ${instanceID} Size of collecting file is $commontemporary = $commontemporaryfilesize bytes."
