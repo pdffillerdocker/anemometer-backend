@@ -1,3 +1,11 @@
+### 2.0.8
+*ADD :*
+add loglevel CRITICAL
+
+### 2.0.7
+
+### 2.0.6
+
 ### 2.0.5
 *Changes :*
 delete break from hourly temporaryfilesize checking  
