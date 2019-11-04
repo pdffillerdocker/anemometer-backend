@@ -49,7 +49,7 @@ for instanceID in ${instanceIDs}; do
         downloadLogs=$(downloadLog ${instanceID} slowquery/mysql-slowquery."${suff}" ${temporaryfile} 2>&1)
         statuscode=$?
         if [ ${statuscode} -gt 0 ] ; then
-            echo "ERROR: ${ENV_NAME} ${instanceID} An error occurred (DBLogFileNotFoundFault) when calling the DownloadDBLogFilePortion operation: DBLog File: slow-log file is not found on the ${instanceID}"
+            echo "CRITICAL: ${ENV_NAME} ${instanceID} An error occurred (DBLogFileNotFoundFault) when calling the DownloadDBLogFilePortion operation: DBLog File: slow-log file is not found on the ${instanceID}"
         else
             info  "INFO: ${ENV_NAME} ${instanceID} The slow-log is ON"
         fi
@@ -77,7 +77,7 @@ for instanceID in ${instanceIDs}; do
        statuscode=$?
        info "statuscode=${statuscode} of percona digest tool"
        if [ ${statuscode} -gt 0 ] ; then
-          echo "ERROR: ${ENV_NAME} ${instanceID} to digest slowlogs"
+          echo "CRITICAL: ${ENV_NAME} ${instanceID} to digest slowlogs"
        else
           info "INFO: ${ENV_NAME} ${instanceID} Digest of ${commontemporary} was successful"
           rm -f "${commontemporary}"
