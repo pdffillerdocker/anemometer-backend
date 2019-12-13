@@ -71,9 +71,9 @@ for instanceID in ${instanceIDs}; do
         fi
         temporaryfilesize=$(stat -c%s "$temporaryfile")
         if [[ ${temporaryfilesize} -le ${CHECKSIZE} ]] ; then
-            info "ERROR: ${ENV_NAME} ${instanceID} The problem is with downloading ${temporaryfile}. The file's size is less than ${CHECKSIZE} bytes"
+            echo "ERROR: ${ENV_NAME} ${instanceID} The problem is with downloading ${temporaryfile}. The file's size is less than ${CHECKSIZE} bytes"
         else
-            info "INFO: ${ENV_NAME} ${instanceID} Donloading finished OK. The size of ${temporaryfile} = ${temporaryfilesize} bytes. Start to add it into  ${commontemporary}"
+            info "INFO: ${ENV_NAME} ${instanceID} Downloading finished OK. The size of ${temporaryfile} = ${temporaryfilesize} bytes. Start to add it into  ${commontemporary}"
             cat ${temporaryfile} >> ${commontemporary}
             echo >> ${commontemporary}
             rm -r ${temporaryfile}
