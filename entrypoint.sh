@@ -26,7 +26,7 @@ function downloadLog () {
    local downloadedfile=$3
 
    /usr/bin/aws rds download-db-log-file-portion  \
-   --region REGION \
+   --region ${REGION} \
    --output text \
    --db-instance-identifier ${instanceID} \
    --log-file-name $log \
