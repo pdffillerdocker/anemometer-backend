@@ -18,6 +18,9 @@ Image create by launch on ECS or FARGATE container via scheduler
 | ANEMOMETER_MYSQL_PASSWORD  | The master password  |   |
 | ANEMOMETER_MYSQL_PORT   | The port on which the DB accepts connections  |   |
 | ANEMOMETER_MYSQL_DB  | The database name |  slow_query_log |
+| ENVIRONMENT  | The environment name |   |
+| REGION  | The region name |   |
+| EXCLUDED_RDS  | The list of RDS names where don't need to download slow-logs |   |
 | DEBUGLEVEL |The parameter shows more information messages of the script. It should be 0 or 1. The value 0 will show only error messages. The values 1 will show all messages.  | 0   |
 
 **Warning** don't change ANEMOMETER_MYSQL_DB value

@@ -1,3 +1,9 @@
+### 2.0.6
+*Changes :*
+add filter that will exclude Postgres db from describing RDS
+add Excluded_RDS and REGION variables
+
+
 ### 2.0.5
 *Changes :*
 delete break from hourly temporaryfilesize checking  
