@@ -26,6 +26,7 @@ function downloadLog () {
    local downloadedfile=$3
 
    /usr/bin/aws rds download-db-log-file-portion  \
+   --region REGION \
    --output text \
    --db-instance-identifier ${instanceID} \
    --log-file-name $log \
@@ -35,8 +36,16 @@ function downloadLog () {
 for hour in $(seq 0 23) ; do suffixes="${suffixes} log.$hour" ; done
 info "INFO: ${ENV_NAME} allDB The list of suffixes for slowlogs files ${suffixes} were created"
 info "INFO: ${ENV_NAME} allDB Lets describe RDS instances in the account"
-instanceIDs=$(/usr/bin/aws rds  describe-db-instances --region us-east-1 --query 'DBInstances[*].[DBInstanceIdentifier]' --output text)
-info "INFO: ${ENV_NAME} allDB Such instances was found : ${instanceIDs}"
+describedRDS=$(/usr/bin/aws rds  describe-db-instances --region ${REGION} --filters "Name=engine,Values=mysql,mariadb" --query 'DBInstances[*].[DBInstanceIdentifier]'  --output text)
+info "INFO: ${ENV_NAME} allDB Such instances was found : ${describedRDS}"
+info "Lets compare described and excluded arrays"
+for described in ${describedRDS[@]}; do
+  for excluded in ${EXCLUDED_RDS[@]}; do
+   instanceIDs=$(echo ${EXCLUDED_RDS[@]} ${describedRDS[@]} | tr ' ' '\n' | sort | uniq -u )
+  done
+done
+info "INFO: Comparison of two arrays is finished"
+info "INFO: ${ENV_NAME} The RDS instances from which slow logs will be downloaded are: ${instanceIDs}"
 for instanceID in ${instanceIDs}; do
    nextstep="yes"
    commontemporary="/tmp/slow-${instanceID}-$datestring.log"
@@ -48,16 +57,23 @@ for instanceID in ${instanceIDs}; do
         info "INFO: ${ENV_NAME} ${instanceID} Downloading  ${temporaryfile}"
         downloadLogs=$(downloadLog ${instanceID} slowquery/mysql-slowquery."${suff}" ${temporaryfile} 2>&1)
         statuscode=$?
+        echo "downloadLogs function statuscode=${statuscode}"
         if [ ${statuscode} -gt 0 ] ; then
-            echo "CRITICAL: ${ENV_NAME} ${instanceID} An error occurred (DBLogFileNotFoundFault) when calling the DownloadDBLogFilePortion operation: DBLog File: slow-log file is not found on the ${instanceID}"
+            trycounter=0
+            while [ ${trycounter} -lt 3 ] ; do
+                downloadLogs=$(downloadLog ${instanceID} slowquery/mysql-slowquery."${suff}" ${temporaryfile} 2>&1)
+                info "INFO: ${ENV_NAME} ${instanceID} Try to download slow ${temporaryfile} ${trycounter} times"
+                trycounter=$((trycounter+1))
+                sleep 5
+            done
         else
-            info  "INFO: ${ENV_NAME} ${instanceID} The slow-log is ON"
+            info "INFO: ${ENV_NAME} ${instanceID} The dowloading ${temporaryfile} is finished successfully. Lets check size"
         fi
         temporaryfilesize=$(stat -c%s "$temporaryfile")
         if [[ ${temporaryfilesize} -le ${CHECKSIZE} ]] ; then
-            echo "ERROR: ${ENV_NAME} ${instanceID} The problem is with downloading ${temporaryfile}. The file's size is less than ${CHECKSIZE} bytes"
+            info "ERROR: ${ENV_NAME} ${instanceID} The problem is with downloading ${temporaryfile}. The file's size is less than ${CHECKSIZE} bytes"
         else
-            info "INFO: ${ENV_NAME} ${instanceID} Downloading finished OK. The size of ${temporaryfile} = ${temporaryfilesize} bytes. Start to add it into  ${commontemporary}"
+            info "INFO: ${ENV_NAME} ${instanceID} Donloading finished OK. The size of ${temporaryfile} = ${temporaryfilesize} bytes. Start to add it into  ${commontemporary}"
             cat ${temporaryfile} >> ${commontemporary}
             echo >> ${commontemporary}
             rm -r ${temporaryfile}
