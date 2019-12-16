@@ -57,17 +57,17 @@ for instanceID in ${instanceIDs}; do
         if [ ${statuscode} -gt 0 ] ; then
             echo "CRITICAL: ${ENV_NAME} ${instanceID} An error occurred (DBLogFileNotFoundFault) when calling the DownloadDBLogFilePortion operation: DBLog File: slow-log file is not found on the ${instanceID}. The problem file is slowquery/mysql-slowquery."${suff}" "
             trycounter=0
-            while [ ${trycounter} -lt 5 ] ; do
+             while [ ${trycounter} -le 5 ] ; do
                 downloadLogs=$(downloadLog ${instanceID} slowquery/mysql-slowquery."${suff}" ${temporaryfile} 2>&1)
                 statuscode=$?
-                if [ ${statuscode} -gt 0 ] && [ ${trycounter} -eg 5 ]
+                if [[ ${statuscode} -gt 0 && ${trycounter} -eq 5 ]] ; then
+                    echo "downloadLogs function statuscode=${statuscode} in cycle. trycounter= ${trycounter} "
                     echo "CRITICAL: ${ENV_NAME} ${instanceID} downloadLogs function statuscode=${statuscode} after ${trycounter} attempts. The problem file is with  slowquery/mysql-slowquery."${suff}" when calling the DownloadDBLogFilePortion operation."
-                else
-                    info "INFO: ${ENV_NAME} ${instanceID} The dowloading ${temporaryfile} is finished successfully after ${trycounter} attempts. Lets check size"
                 fi
                 trycounter=$((trycounter+1))
                 sleep 5
             done
+
         else
             info "INFO: ${ENV_NAME} ${instanceID} The dowloading ${temporaryfile} is finished successfully. Lets check size"
         fi
