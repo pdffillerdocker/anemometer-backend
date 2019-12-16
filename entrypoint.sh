@@ -39,11 +39,7 @@ info "INFO: ${ENV_NAME} allDB Lets describe RDS instances in the account"
 describedRDS=$(/usr/bin/aws rds  describe-db-instances --region ${REGION} --filters "Name=engine,Values=mysql,mariadb" --query 'DBInstances[*].[DBInstanceIdentifier]'  --output text)
 info "INFO: ${ENV_NAME} allDB Such instances was found : ${describedRDS}"
 info "Lets compare described and excluded arrays"
-for described in ${describedRDS[@]}; do
-  for excluded in ${EXCLUDED_RDS[@]}; do
-   instanceIDs=$(echo ${EXCLUDED_RDS[@]} ${describedRDS[@]} | tr ' ' '\n' | sort | uniq -u )
-  done
-done
+instanceIDs=$(echo ${EXCLUDED_RDS[@]} ${describedRDS[@]} | tr ' ' '\n' | sort | uniq -u )
 info "INFO: Comparison of two arrays is finished"
 info "INFO: ${ENV_NAME} The RDS instances from which slow logs will be downloaded are: ${instanceIDs}"
 for instanceID in ${instanceIDs}; do
@@ -59,10 +55,16 @@ for instanceID in ${instanceIDs}; do
         statuscode=$?
         echo "downloadLogs function statuscode=${statuscode}"
         if [ ${statuscode} -gt 0 ] ; then
+            echo "CRITICAL: ${ENV_NAME} ${instanceID} An error occurred (DBLogFileNotFoundFault) when calling the DownloadDBLogFilePortion operation: DBLog File: slow-log file is not found on the ${instanceID}. The problem file is slowquery/mysql-slowquery."${suff}" "
             trycounter=0
-            while [ ${trycounter} -lt 3 ] ; do
+            while [ ${trycounter} -lt 5 ] ; do
                 downloadLogs=$(downloadLog ${instanceID} slowquery/mysql-slowquery."${suff}" ${temporaryfile} 2>&1)
-                info "INFO: ${ENV_NAME} ${instanceID} Try to download slow ${temporaryfile} ${trycounter} times"
+                statuscode=$?
+                if [ ${statuscode} -gt 0 ] && [ ${trycounter} -eg 5 ]
+                    echo "CRITICAL: ${ENV_NAME} ${instanceID} downloadLogs function statuscode=${statuscode} after ${trycounter} attempts. The problem file is with  slowquery/mysql-slowquery."${suff}" when calling the DownloadDBLogFilePortion operation."
+                else
+                    info "INFO: ${ENV_NAME} ${instanceID} The dowloading ${temporaryfile} is finished successfully after ${trycounter} attempts. Lets check size"
+                fi
                 trycounter=$((trycounter+1))
                 sleep 5
             done
