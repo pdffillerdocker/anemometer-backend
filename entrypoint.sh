@@ -1,10 +1,6 @@
 #!/usr/bin/env bash
 #set -x
 
-# REGION
-# EXCLUDED_RDS
-
-
 # Set external variable
 # This parameter is using for checking slowlog per hour by size. If the file's size is
 # less than 1024 bytes the slowlog file isn't valid for parsing.
@@ -14,6 +10,9 @@ CHECKSIZE=1023
 declare -i statuscode
 declare -i trycounter
 datestring=$(date +%Y%m%d)
+
+excluded_rds_list=($(echo "$EXCLUDED_RDS" | tr ',' '\n'))
+echo "${excluded_rds_list[@]}"
 
 function info () {
     if [[ ${DEBUGLEVEL} -gt 0 ]] ; then
@@ -44,7 +43,7 @@ info "INFO: ${ENV_NAME} allDB Lets describe RDS instances in the account"
 describedRDS=$(/usr/bin/aws rds  describe-db-instances --region ${REGION} --filters "Name=engine,Values=mysql,mariadb" --query 'DBInstances[*].[DBInstanceIdentifier]'  --output text)
 info "INFO: ${ENV_NAME} allDB Such instances was found : ${describedRDS}"
 info "Lets compare described and excluded arrays"
-instanceIDs=$(echo ${EXCLUDED_RDS[@]} ${describedRDS[@]} | tr ' ' '\n' | sort | uniq -u )
+instanceIDs=$(echo ${excluded_rds_list[@]} ${describedRDS[@]} | tr ' ' '\n' | sort | uniq -u )
 info "INFO: Comparison of two arrays is finished"
 info "INFO: ${ENV_NAME} The RDS instances from which slow logs will be downloaded are: ${instanceIDs}"
 for instanceID in ${instanceIDs}; do
