@@ -11,7 +11,7 @@ declare -i statuscode
 declare -i trycounter
 datestring=$(date +%Y%m%d)
 
-excluded_rds_list=($(echo "$EXCLUDED_RDS" | tr ',' '\n'))
+excluded_rds_list=($(echo "${EXCLUDED_RDS}" | tr ',' '\n'))
 echo "${excluded_rds_list[@]}"
 
 function info () {
@@ -68,7 +68,7 @@ for instanceID in ${instanceIDs}; do
            else
                temporaryfilesize=$(stat -c%s "$temporaryfile")
                if [[ ${temporaryfilesize} -le ${CHECKSIZE} ]] ; then
-                   echo "ERROR: ${ENV_NAME} ${instanceID} The problem is with downloading ${temporaryfile}. The file's size is less than ${CHECKSIZE} bytes"
+                   echo "ERROR: ${ENV_NAME} ${instanceID} The problem is with downloading ${temporaryfile}. The files size is less than ${CHECKSIZE} bytes"
                    ((trycounter++))
                    sleep 2
                else
@@ -81,10 +81,11 @@ for instanceID in ${instanceIDs}; do
                    trycounter=10
                fi
            fi
+           rm -f "${commontemporary}"
        done
    done
    info "INFO: ${ENV_NAME} ${instanceID} Finished downloading ${instanceID} slowlogs by hours"
-   if [ "${nextstep}" = "yes" ] ; then
+   if [[ "${nextstep}" = "yes" && -f ${commontemporary} ]] ; then
        info "INFO: ${ENV_NAME} ${instanceID}. Starting to digest collected file ${commontemporary} and add result into anemometer database"
        /usr/bin/pt-query-digest --user=$ANEMOMETER_MYSQL_USER --password=$ANEMOMETER_MYSQL_PASSWORD \
                                 --review h=$ANEMOMETER_MYSQL_HOST,D=$ANEMOMETER_MYSQL_DB,t=global_query_review \
@@ -95,7 +96,7 @@ for instanceID in ${instanceIDs}; do
        statuscode=$?
        info "statuscode=${statuscode} of percona digest tool"
        if [ ${statuscode} -gt 0 ] ; then
-          echo "CRITICAL: ${ENV_NAME} ${instanceID} to digest slowlogs"
+          echo "CRITICAL: ${ENV_NAME} ${instanceID} slowlogs digest problem. the statuscode=${statuscode} "
        else
           info "INFO: ${ENV_NAME} ${instanceID} Digest of ${commontemporary} was successful"
           rm -f "${commontemporary}"
