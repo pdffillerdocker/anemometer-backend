@@ -1,3 +1,31 @@
+### 2.0.16
+*Changes :*
+add check disk space 
+
+---
+
+### 2.0.15
+*Changes :*
+fix condition for digest
+
+---
+
+### 2.0.14
+*Changes :*
+
+---
+
+### 2.0.13
+*Changes :*
+turn-on debug option into download-db-log-file-portion
+
+---
+### 2.0.12
+*Changes :*
+update filter that will describe aurora-mysql engine"
+
+---
+
 ### 2.0.11
 * Update: *
 Critical message - add slow-log name during download problem
@@ -7,7 +35,6 @@ Critical message - add slow-log name during download problem
 ### 2.0.10
 *Changes :*
  
-
 ---
 
 ### 2.0.9

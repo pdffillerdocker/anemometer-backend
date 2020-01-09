@@ -35,6 +35,7 @@ function downloadLog () {
    --output text \
    --db-instance-identifier ${instanceID} \
    --log-file-name $log \
+   --debug \
    --starting-token 0 > ${downloadedfile}
 }
 for hour in $(seq 0 23) ; do suffixes="${suffixes} log.$hour" ; done
@@ -45,11 +46,10 @@ info "INFO: ${ENV_NAME} allDB Such instances was found : ${describedRDS}"
 info "Lets compare described and excluded arrays"
 instanceIDs=$(echo ${excluded_rds_list[@]} ${describedRDS[@]} | tr ' ' '\n' | sort | uniq -u )
 info "INFO: Comparison of two arrays is finished"
-info "INFO: ${ENV_NAME} The RDS instances from which slow logs will be downloaded are: ${instanceIDs}"
+info "INFO: ${ENV_NAME} allDB The RDS instances from which slow logs will be downloaded are: ${instanceIDs}"
 for instanceID in ${instanceIDs}; do
    nextstep="yes"
    commontemporary="/tmp/slow-${instanceID}-$datestring.log"
-   rm -f "${commontemporary}"
    info "INFO: ${ENV_NAME} ${instanceID} Start to download slowlogs"
    for suff in ${suffixes} ; do
        temporaryfile="/tmp/slow-${instanceID}.${suff}"
@@ -57,6 +57,7 @@ for instanceID in ${instanceIDs}; do
        rm -f "${temporaryfile}"
        while [ ${trycounter} -lt 5 ] ; do
            info "INFO: ${ENV_NAME} ${instanceID} Downloading  ${temporaryfile}"
+           info "INFO: ${ENV_NAME} ${instanceID} Free disck space before downloading df -h " : $(df -h)
            downloadLogs=$(downloadLog ${REGION} ${instanceID} slowquery/mysql-slowquery."${suff}" ${temporaryfile} 2>&1)
            statuscode=$?
            info "INFO: ${ENV_NAME} ${instanceID} downloadLogs function statuscode=${statuscode}"
@@ -64,7 +65,7 @@ for instanceID in ${instanceIDs}; do
                echo "CRITICAL: ${ENV_NAME} ${instanceID} An error occurred (DBLogFileNotFoundFault) when calling the DownloadDBLogFilePortion operation: DBLog File: slow-log file is not found on the ${instanceID}. The problem file is slowquery/mysql-slowquery."${suff}" "
                ((trycounter++))
                info "INFO: ${ENV_NAME} ${instanceID} counter=${trycounter}"
-               sleep 2
+               sleep 3
            else
                temporaryfilesize=$(stat -c%s "$temporaryfile")
                if [[ ${temporaryfilesize} -le ${CHECKSIZE} ]] ; then
@@ -72,6 +73,7 @@ for instanceID in ${instanceIDs}; do
                    ((trycounter++))
                    sleep 2
                else
+                   info "INFO: ${ENV_NAME} ${instanceID} Free disk space after downloading ${temporaryfile} df -h " : $(df -h)
                    info "INFO: ${ENV_NAME} ${instanceID} Downloading finished OK. The size of ${temporaryfile} = ${temporaryfilesize} bytes. Start to add it into  ${commontemporary}"
                    cat ${temporaryfile} >> ${commontemporary}
                    echo >> ${commontemporary}
@@ -81,11 +83,10 @@ for instanceID in ${instanceIDs}; do
                    trycounter=10
                fi
            fi
-           rm -f "${commontemporary}"
        done
    done
    info "INFO: ${ENV_NAME} ${instanceID} Finished downloading ${instanceID} slowlogs by hours"
-   if [[ "${nextstep}" = "yes" && -f ${commontemporary} ]] ; then
+   if [[ "${nextstep}" = "yes" && -f "${commontemporary}" ]] ; then
        info "INFO: ${ENV_NAME} ${instanceID}. Starting to digest collected file ${commontemporary} and add result into anemometer database"
        /usr/bin/pt-query-digest --user=$ANEMOMETER_MYSQL_USER --password=$ANEMOMETER_MYSQL_PASSWORD \
                                 --review h=$ANEMOMETER_MYSQL_HOST,D=$ANEMOMETER_MYSQL_DB,t=global_query_review \
