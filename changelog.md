@@ -1,6 +1,13 @@
+### 2.0.17
+*Changes :*
+- remove Excluded_RDS variable
+- add a function that filters ARNs RDS by tag where slow log must be downloaded
+
+---
+
 ### 2.0.16
 *Changes :*
-add check disk space 
+add check disk space before and after downloading slow-logs
 
 ---
 
