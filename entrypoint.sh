@@ -37,10 +37,7 @@ function downloadLog () {
    --output text \
    --db-instance-identifier ${instanceID} \
    --log-file-name $log \
-   --starting-token 0 >${downloadedfile} 2>/tmp/anenom.err
-#   err="$(cat /tmp/anenom.err)"
-#   rm /tmp/anenom.err
-#   --debug \
+   --starting-token 0 >${downloadedfile} 2>$1
 }
 
 for hour in $(seq 0 23) ; do suffixes="${suffixes} log.$hour" ; done
@@ -65,7 +62,6 @@ for rdsArn in ${rdsArns}; do
                downloadLogs=$(downloadLog ${REGION} ${instanceID} slowquery/mysql-slowquery."${suff}" ${temporaryfile})
                statuscode=$?
                sleep 2
-               # echo "INFO: ${REGION} ${instanceID} ${temporaryfile} stat information " : $(stat -f ${temporaryfile})
                info "INFO: ${ENV_NAME} ${instanceID} downloadLogs function statuscode=${statuscode}"
                if [ ${statuscode} -gt 0 ] ; then
                    err="$(cat /tmp/anenom.err)"

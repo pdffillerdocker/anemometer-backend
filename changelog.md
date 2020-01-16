@@ -1,13 +1,22 @@
-### 2.0.28
+### 2.0.29 - Working images
 *Changes :*
 - debug mode - turn off
 
 ---
 
-### 2.0.27
+### 2.0.28 - bad image. please don't use it
+*Changes :*
+- debug mode - turn off
+
+---
+
+### 2.0.27 - TEST IMAGE
 *Changes :*
 - test image based on centos
 - debug is on 
+- for test RDS use tag Key=Slowlog,Values=true
+
+---
 
 ### 2.0.26
 *Changes :*
