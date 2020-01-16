@@ -1,3 +1,58 @@
+### 2.0.27
+*Changes :*
+- test image based on centos
+
+### 2.0.26
+*Changes :*
+- itest image based on ubuntu
+
+---
+
+### 2.0.25
+*Changes :*
+- test image
+
+---
+
+### 2.0.24
+*Changes :*
+- test image
+
+---
+
+### 2.0.23
+*Changes :*
+- fix debug output
+
+---
+
+### 2.0.21
+*Changes :*
+- add LC_ALL en_US.utf8
+
+---
+
+### 2.0.20
+*Changes :*
+- add ENV LANG en_US.utf8
+- remove stat -f for temporary downloaded file
+- set -x is off
+
+---
+
+### 2.0.19
+*Changes :*
+- add stat -f for temporary downloaded file
+- set -x is on
+
+---
+
+### 2.0.18
+*Changes :*
+- add debug option for aws rds download-db-log-file-portion
+
+---
+
 ### 2.0.17
 *Changes :*
 - remove Excluded_RDS variable
