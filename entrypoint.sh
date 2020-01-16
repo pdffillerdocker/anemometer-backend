@@ -37,10 +37,10 @@ function downloadLog () {
    --output text \
    --db-instance-identifier ${instanceID} \
    --log-file-name $log \
-#   --debug \
    --starting-token 0 >${downloadedfile} 2>/tmp/anenom.err
 #   err="$(cat /tmp/anenom.err)"
 #   rm /tmp/anenom.err
+#   --debug \
 }
 
 for hour in $(seq 0 23) ; do suffixes="${suffixes} log.$hour" ; done
