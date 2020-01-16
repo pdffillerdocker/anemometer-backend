@@ -1,6 +1,12 @@
+### 2.0.28
+*Changes :*
+- debug mode - turn off
+
+
 ### 2.0.27
 *Changes :*
 - test image based on centos
+- debug is on 
 
 ### 2.0.26
 *Changes :*

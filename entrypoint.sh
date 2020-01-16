@@ -1,9 +1,8 @@
 #!/usr/bin/env bash
-set -x
+# set -x
 
 /usr/bin/aws --version
 python --version
-#python3 --version
 
 sleep 5
 
@@ -16,9 +15,6 @@ CHECKSIZE=1023
 declare -i statuscode
 declare -i trycounter
 datestring=$(date +%Y%m%d)
-
-#excluded_rds_list=($(echo "${EXCLUDED_RDS}" | tr ',' '\n'))
-#echo "${excluded_rds_list[@]}"
 
 function info () {
     if [[ ${DEBUGLEVEL} -gt 0 ]] ; then
@@ -41,16 +37,16 @@ function downloadLog () {
    --output text \
    --db-instance-identifier ${instanceID} \
    --log-file-name $log \
-   --debug \
+#   --debug \
    --starting-token 0 >${downloadedfile} 2>/tmp/anenom.err
-   err="$(cat /tmp/anenom.err)"
+#   err="$(cat /tmp/anenom.err)"
 #   rm /tmp/anenom.err
-}   # --debug \
+}
 
 for hour in $(seq 0 23) ; do suffixes="${suffixes} log.$hour" ; done
 info "INFO: ${ENV_NAME} allDB The list of suffixes for slowlogs files ${suffixes} were created"
 info "INFO: ${ENV_NAME} allDB Lets find RDS ARNs  where tag Anemometer=true"
-rdsArns=$(/usr/bin/aws resourcegroupstaggingapi get-resources --region ${REGION} --resource-type-filters rds:db --query 'ResourceTagMappingList[*].[ResourceARN]' --tag-filters Key=Slowlog,Values=true --output text)
+rdsArns=$(/usr/bin/aws resourcegroupstaggingapi get-resources --region ${REGION} --resource-type-filters rds:db --query 'ResourceTagMappingList[*].[ResourceARN]' --tag-filters Key=Anemometer,Values=true --output text)
 info "INFO: ${ENV_NAME} allDB Such arns was found : ${rdsArns}"
 for rdsArn in ${rdsArns}; do
     info "INFO: ${ENV_NAME} allDB Lets describe RDS instance name in the account for ${rdsArn}"
@@ -69,9 +65,10 @@ for rdsArn in ${rdsArns}; do
                downloadLogs=$(downloadLog ${REGION} ${instanceID} slowquery/mysql-slowquery."${suff}" ${temporaryfile})
                statuscode=$?
                sleep 2
-               echo "INFO: ${REGION} ${instanceID} ${temporaryfile} stat information " : $(stat -f ${temporaryfile})
+               # echo "INFO: ${REGION} ${instanceID} ${temporaryfile} stat information " : $(stat -f ${temporaryfile})
                info "INFO: ${ENV_NAME} ${instanceID} downloadLogs function statuscode=${statuscode}"
                if [ ${statuscode} -gt 0 ] ; then
+                   err="$(cat /tmp/anenom.err)"
                    echo "CRITICAL: ${ENV_NAME} ${instanceID} An error occurred (DBLogFileNotFoundFault) when calling the DownloadDBLogFilePortion operation: DBLog File: slow-log file is not found on the ${instanceID}. The problem file is slowquery/mysql-slowquery."${suff}" "
                    ((trycounter++))
                    info "INFO: ${ENV_NAME} ${instanceID} counter=${trycounter}"
@@ -115,5 +112,4 @@ for rdsArn in ${rdsArns}; do
        fi
     done
 done
-sleep 30m
 exit 0
