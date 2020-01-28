@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -x
+#set -x
 
 root_folder="$HOME/.aws"
 mkdir -p ${root_folder}
@@ -82,18 +82,6 @@ function describeRDS () {
 
 }
 
-#####  ----------------------------
-# compdate=$( date -d '-90 days' '+%Y%m%d' )  ----------------------- date
-#for fname in *; do
-#    if (( ${fname//[^0-9]} < compdate )); then
-#        echo "$fname"
-#        info "INFO: ${ENV_NAME} ${instanceID} The file  if older than 90 days "
-#    fi
-#done
-
-########### ------------------------------
-
-
 for hour in $(seq 0 23) ; do suffixes="${suffixes} log.$hour" ; done
 info "INFO: ${ENV_NAME} allDB The list of suffixes for slowlogs files ${suffixes} were created"
 info "INFO: ${ENV_NAME} allDB Lets find RDS ARNs  where tag Anemometer=true"
@@ -125,15 +113,23 @@ for profileID in ${profileIDs[@]}; do
                     echo "INFO: ${REGION} ${instanceID} ${temporaryfile} stat information " : $(stat -f ${temporaryfile})
                     info "INFO: ${ENV_NAME} ${instanceID} downloadLogs function statuscode=${statuscode}"
                     if [ ${statuscode} -gt 0 ] ; then
-                        echo "INFO: ${ENV_NAME} ${instanceID} stdout log file"  $(cat /tmp/app-access.log)
+                        echo "INFO: ${ENV_NAME} ${instanceID} stdout log file"
                         echo "CRITICAL: ${ENV_NAME} ${instanceID} An error occurred (DBLogFileNotFoundFault) when calling the DownloadDBLogFilePortion operation: DBLog File: slow-log file is not found on the ${instanceID}. The problem file is slowquery/mysql-slowquery."${suff}" "
                         ((trycounter++))
                         info "INFO: ${ENV_NAME} ${instanceID} counter=${trycounter}"
                         sleep 2
                     else
                         workfolder="${ENV_NAME}/${instanceID}/${datestring}"
-                        info "INFO: ${ENV_NAME} ${instanceID} Let's copy ${temporaryfile} to S3 bucket into ${workfolder}"
-                        cpslowToS3=$( aws s3 cp ${temporaryfile}  s3://${S3_BUCKET}/slowlogs/${workfolder}/ )
+                        workfolderTime="${ENV_NAME}/${instanceID}/${datetimestring}"
+                        checkfolderonS3=$( aws s3 ls --profile=ENV_ORIGIN_NAME s3://${S3_BUCKET}/slowlogs/${workfolder}/ )
+                        statuscode=$?
+                        if [ ${statuscode} -gt 0 ] ; then
+                            echo "INFO: ${ENV_NAME} ${instanceID} The folder ${workfolder} on S3 ${S3_BUCKET} is already exist. Will copy to the new folder ${workfolderTime} "
+                            cpslowToS3=$( aws s3 cp ${temporaryfile}  s3://${S3_BUCKET}/slowlogs/${workfolderTime}/ )
+                        else
+                            info "INFO: ${ENV_NAME} ${instanceID} Let's copy ${temporaryfile} to S3 bucket into ${workfolder}"
+                            cpslowToS3=$( aws s3 cp ${temporaryfile}  s3://${S3_BUCKET}/slowlogs/${workfolder}/ )
+                        fi
                         temporaryfilesize=$(stat -c%s "$temporaryfile")
                         if [[ ${temporaryfilesize} -le ${CHECKSIZE} ]] ; then
                             echo "ERROR: ${ENV_NAME} ${instanceID} The problem is with downloading ${temporaryfile}. The files size is less than ${CHECKSIZE} bytes"

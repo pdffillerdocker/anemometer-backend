@@ -1,3 +1,10 @@
+### 2.0.30
+*Changes :*
+- add possibility to store slow-logs to s3
+- collecting algorithm. The slow logs will be collected from one AWS account
+
+---
+
 ### 2.0.29 - Working images
 *Changes :*
 - debug mode - turn off
