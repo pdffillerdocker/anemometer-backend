@@ -23,7 +23,6 @@ Image create by launch on ECS or FARGATE container via scheduler
 | REGION  | The region name |   |
 | S3_BUCKET  | The bucket name where slow log origins will be stored|   |
 | S3_SECRET  | The bucket name where credentials for AWS accounts will be located |   |
-| PROFILE_NAMES  | The list of profile name where slow-logs will be collected|   |
 | DEBUGLEVEL |The parameter shows more information messages of the script. It should be 0 or 1. The value 0 will show only error messages. The values 1 will show all messages.  | 0   |
 
 **Warning** don't change ANEMOMETER_MYSQL_DB value

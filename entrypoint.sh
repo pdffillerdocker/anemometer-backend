@@ -86,7 +86,7 @@ for hour in $(seq 0 23) ; do suffixes="${suffixes} log.$hour" ; done
 info "INFO: ${ENV_NAME} allDB The list of suffixes for slowlogs files ${suffixes} were created"
 info "INFO: ${ENV_NAME} allDB Lets find RDS ARNs  where tag Anemometer=true"
 
-profileIDs=($(echo "$PROFILE_NAMES" | tr ',' '\n'))
+profileIDs=$( grep -Po '(?<=\[)[^]]+(?=\])' ${path_credentials})
 echo "${profileIDs[@]}"
 for profileID in ${profileIDs[@]}; do
     ENV_NAME=${profileID}
@@ -121,10 +121,10 @@ for profileID in ${profileIDs[@]}; do
                     else
                         workfolder="${ENV_NAME}/${instanceID}/${datestring}"
                         workfolderTime="${ENV_NAME}/${instanceID}/${datetimestring}"
-                        checkfolderonS3=$( aws s3 ls --profile=ENV_ORIGIN_NAME s3://${S3_BUCKET}/slowlogs/${workfolder}/ )
+                        checkfolderonS3=$( aws s3 ls --profile=${ENV_ORIGIN_NAME} s3://${S3_BUCKET}/slowlogs/${workfolder}/ )
                         statuscode=$?
                         if [ ${statuscode} -gt 0 ] ; then
-                            echo "INFO: ${ENV_NAME} ${instanceID} The folder ${workfolder} on S3 ${S3_BUCKET} is already exist. Will copy to the new folder ${workfolderTime} "
+                            info "INFO: ${ENV_NAME} ${instanceID} The folder ${workfolder} on S3 ${S3_BUCKET} is already exist. Will copy to the new folder ${workfolderTime} "
                             cpslowToS3=$( aws s3 cp ${temporaryfile}  s3://${S3_BUCKET}/slowlogs/${workfolderTime}/ )
                         else
                             info "INFO: ${ENV_NAME} ${instanceID} Let's copy ${temporaryfile} to S3 bucket into ${workfolder}"
