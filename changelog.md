@@ -2,6 +2,7 @@
 *Changes :*
 - add possibility to store slow-logs to s3
 - collecting algorithm. The slow logs will be collected from one AWS account
+- realize possibility to download slowlogs from Aurora RDS
 
 ---
 
