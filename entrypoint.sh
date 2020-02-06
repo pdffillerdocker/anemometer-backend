@@ -83,7 +83,11 @@ function describeEngine () {
 }
 
 for hour in $(seq 0 23) ; do suffixes="${suffixes} log.$hour" ; done
-for hour in $(seq -f "%02g" 0 23) ; do suffixesdate="${suffixesdate} log.${datestring}.$hour" ; done
+
+for hour in $(seq 0 23) ; do
+    hourbackdate=$(date -u -d "${hour} hour ago" +"%Y-%m-%d.%H")
+    suffixesdate="${suffixesdate} log.${hourbackdate}"
+done
 
 info "INFO: ${ENV_NAME} allDB The list of suffixes for slowlogs files ${suffixes} were created"
 info "INFO: ${ENV_NAME} allDB The list of suffixes for Aurora RDS slowlogs files ${suffixesdate} were created"
@@ -141,7 +145,7 @@ for profileID in ${profileIDs[@]} ; do
                     fi
                 done
             done
-        else   # aurora finish
+        else   #  finish downloading from Aurora RDS
             nextstep="yes"
             info "INFO: ${ENV_NAME} ${rdsName} Lets start to download slowlogs for ${rdsName}"
             for suff in ${suffixes} ; do
