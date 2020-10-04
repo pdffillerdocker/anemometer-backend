@@ -97,7 +97,7 @@ done
 
 info "INFO: ${ENV_NAME} allDB The list of suffixes for slowlogs files ${suffixes} were created"
 info "INFO: ${ENV_NAME} allDB The list of suffixes for Aurora RDS slowlogs files ${suffixesdate} were created"
-info "INFO: ${ENV_NAME} allDB Lets find RDS ARNs  where tag Anemometer=test"
+info "INFO: ${ENV_NAME} allDB Lets find RDS ARNs  where tag Anemometer=true"
 
 profileIDs=$( grep -Po '(?<=\[)[^]]+(?=\])' ${path_credentials})
 echo "${profileIDs[@]}"
@@ -117,7 +117,7 @@ for profileID in ${profileIDs[@]} ; do
             for suffdate in ${suffixesdate} ; do
                 temporaryfile="/tmp/slow-${rdsName}.${suffdate}"
                 trycounter=0
-                while [ ${trycounter} -lt 2 ] ; do
+                while [ ${trycounter} -lt 3 ] ; do
                     info "INFO: ${ENV_NAME} ${rdsName} Downloading  ${temporaryfile}"
                     info "INFO: ${ENV_NAME} ${rdsName} Free disk space before downloading df -h " : $(df -h)
                     downloadLogs=$(downloadLog ${profileID} ${REGION} ${rdsName} slowquery/mysql-slowquery."${suffdate}" ${temporaryfile})
