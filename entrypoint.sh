@@ -2,6 +2,11 @@
 #set -x
 # ([^:]*)$   - from arn
 
+#if you need to switch ssh, uncomment next row
+#/usr/local/bin/sshd-entrypoint.sh &
+
+############# ANEMOMETER part ##################
+
 root_folder="$HOME/.aws"
 mkdir -p ${root_folder}
 path_credentials=$HOME/.aws/credentials
@@ -53,7 +58,8 @@ function downloadLog () {
    --output text \
    --db-instance-identifier ${instanceID} \
    --log-file-name $log \
-   --starting-token 0 >${downloadedfile} 2>&1
+   --starting-token 0 >${downloadedfile} 2>> /tmp/anenom.err
+   err="$(cat /tmp/anenom.err)"
 }
 
 function getRdsArn () {
@@ -105,13 +111,13 @@ for profileID in ${profileIDs[@]} ; do
         engineRDS=$(describeEngine ${profileID} ${REGION} ${rdsName} )
         info "INFO: ${ENV_NAME} ${rdsName} The rds ${rdsName} engine type is ${engineRDS} "
         commontemporary="/tmp/generalslow-${rdsName}-$datestring.log"
-        if [ "${engineRDS}" == "aurora-mysql" ] ; then
+        if [ "${engineRDS}" == "aurora-mysql" ] || [ "${engineRDS}" == "aurora" ] ; then
             info "INFO: ${ENV_NAME} ${rdsName} Lets start to download slowlogs for Aurora RDS ${rdsName}, engine is ${engineRDS} "
             nextstep="yes"
             for suffdate in ${suffixesdate} ; do
                 temporaryfile="/tmp/slow-${rdsName}.${suffdate}"
                 trycounter=0
-                while [ ${trycounter} -lt 5 ] ; do
+                while [ ${trycounter} -lt 3 ] ; do
                     info "INFO: ${ENV_NAME} ${rdsName} Downloading  ${temporaryfile}"
                     info "INFO: ${ENV_NAME} ${rdsName} Free disk space before downloading df -h " : $(df -h)
                     downloadLogs=$(downloadLog ${profileID} ${REGION} ${rdsName} slowquery/mysql-slowquery."${suffdate}" ${temporaryfile})
@@ -128,6 +134,8 @@ for profileID in ${profileIDs[@]} ; do
                         workfolder="${ENV_NAME}/${rdsName}/${datestring}"
                         cpslowToS3=$( aws s3 cp --profile=${ENV_ORIGIN_NAME} ${temporaryfile}  s3://${S3_BUCKET}/slowlogs/${workfolder}/ )
                         temporaryfilesize=$(stat -c%s "$temporaryfile")
+                        echo " File size of ${temporaryfile} is ${temporaryfilesize}"
+                        sleep 2
                         if [[ ${temporaryfilesize} -le ${CHECKSIZE} ]] ; then
                             echo "ERROR: ${ENV_NAME} ${rdsName} The problem is with downloading ${temporaryfile}. The files size is less than ${CHECKSIZE} bytes"
                             ((trycounter++))
@@ -207,5 +215,8 @@ for profileID in ${profileIDs[@]} ; do
         fi
     done
 done
+
+# if you use ssh, uncomment the sleep for debug
+#sleep 50m
 
 exit 0

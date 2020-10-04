@@ -2,7 +2,8 @@
 *Changes :*
 - add possibility to store slow-logs to s3
 - collecting algorithm. The slow logs will be collected from one AWS account
-- realize possibility to download slowlogs from Aurora RDS
+- realize possibility to download slowlogs from Aurora RDS (engine: aurora and aurora-mysql)
+- add code for switch on ssh for aws Fargate container
 
 ---
 
