@@ -7,3 +7,4 @@ goreplace
 gocrond
 .idea/
 venv/
+.DS_Store
