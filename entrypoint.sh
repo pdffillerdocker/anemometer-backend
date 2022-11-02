@@ -8,14 +8,17 @@
 #This function assumed roles and create credentials for awscli
 #parameters: $1 role ARN
 #            $2 session name
+#            $3 sts-external-id
 function RoleToCredentials() {
   local roleARN=$1
   local rolesessionName=$2
+  local stsexternalid=$3
 
   export $(printf "AWS_ACCESS_KEY_ID=%s AWS_SECRET_ACCESS_KEY=%s AWS_SESSION_TOKEN=%s" \
   $(/usr/local/bin/aws sts assume-role \
   --role-arn ${roleARN} \
   --role-session-name ${rolesessionName} \
+  --external-id ${stsexternalid} \
   --query "Credentials.[AccessKeyId,SecretAccessKey,SessionToken]" \
   --output text))
 }
@@ -86,11 +89,11 @@ declare -i trycounter
 datestring=$(date +%Y-%m-%d)
 
 # assume role and create credentials for collecting accountIDs from organization account
-RoleToCredentials ${RoleListAccounts} anemometer-list-accountIDs
+RoleToCredentials ${LISTACCOUNTIDSROLE} anemometer-list-accountIDs ${STSEXTERNALID_LISTACCOUNT}
 
 accountIDs_list=$(/usr/local/bin/aws organizations list-accounts --query 'Accounts[*].[Id]' --output text)
 
-roleCollectSlowLogs=${CollectSlowLogsRole}
+roleCollectSlowLogs=${COLLECTSLOWLOGSROLE}
 
 #Creation suffix for downloading slowlogs from mysql engine. log.2022-10-29.0, log.2022-10-29.1 ... log.2022-10-29.23
 for hour in $(seq 0 23) ; do
@@ -114,7 +117,7 @@ for accountID in ${accountIDs_list[@]} ; do
     unsetCredentials
     echo "account id ${accountID}"
     #assume role for account
-    RoleToCredentials ${roleCollectSlowLogs/000000000000/$accountID} anemometer-collect-slowlogs
+    RoleToCredentials ${roleCollectSlowLogs/000000000000/$accountID} anemometer-collect-slowlogs ${STSEXTERNALID_COLLECTSLOWLOG}
     info "INFO: Let's start collect slow logs from account ${accountID}"
     # Lets find if RDS is in account
     rdsNames=$( getRdsArn ${ENV_NAME})
