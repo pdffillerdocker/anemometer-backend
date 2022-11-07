@@ -88,8 +88,12 @@ declare -i statuscode
 declare -i trycounter
 datestring=$(date +%Y-%m-%d)
 
+# receive the secret externalIDs for sts assume role
+stsexternalid_listaccount=$( echo ${STSEXTERNALIDs} | jq -r .STSEXTERNALID_LISTACCOUNT )
+stsexternalid_collect_slowlogs=$( echo ${STSEXTERNALIDs} | jq -r .STSEXTERNALID_COLLECTSLOWLOG )
+
 # assume role and create credentials for collecting accountIDs from organization account
-RoleToCredentials ${LISTACCOUNTIDSROLE} anemometer-list-accountIDs ${STSEXTERNALID_LISTACCOUNT}
+RoleToCredentials ${LISTACCOUNTIDSROLE} anemometer-list-accountIDs ${stsexternalid_listaccount}
 
 accountIDs_list=$(/usr/local/bin/aws organizations list-accounts --query 'Accounts[*].[Id]' --output text)
 
@@ -117,7 +121,7 @@ for accountID in ${accountIDs_list[@]} ; do
     unsetCredentials
     echo "account id ${accountID}"
     #assume role for account
-    RoleToCredentials ${roleCollectSlowLogs/000000000000/$accountID} anemometer-collect-slowlogs ${STSEXTERNALID_COLLECTSLOWLOG}
+    RoleToCredentials ${roleCollectSlowLogs/000000000000/$accountID} anemometer-collect-slowlogs ${stsexternalid_collect_slowlogs}
     info "INFO: Let's start collect slow logs from account ${accountID}"
     # Lets find if RDS is in account
     rdsNames=$( getRdsArn ${ENV_NAME})

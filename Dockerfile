@@ -5,7 +5,8 @@ ENV LANG en_US.utf8
 ENV LC_ALL en_US.utf8
 
 RUN yum update -y
-RUN yum -y install python perl unzip openssh-server openssh-clients openssl openssl-libs
+RUN yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm && \
+    yum -y install python perl unzip openssh-server openssh-clients openssl openssl-libs jq
 
 RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" && \
     unzip awscliv2.zip && \
