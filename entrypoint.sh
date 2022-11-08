@@ -112,8 +112,8 @@ for hour in $(seq 0 23) ; do
 done
 
 #info "INFO: ${ENV_NAME} allDB The list of suffixes for slowlogs files ${suffixes} were created"
-info "INFO: ${ENV_NAME} allDB The list of suffixes for Aurora RDS slowlogs files ${suffixesdate} were created"
-info "INFO: ${ENV_NAME} allDB Lets find RDS ARNs  where tag Anemometer=true"
+info "INFO: allDB The list of suffixes for Aurora RDS slowlogs files ${suffixesdate} were created"
+info "INFO: allDB Lets find RDS ARNs  where tag Anemometer=true"
 
 
 for accountID in ${accountIDs_list[@]} ; do
@@ -127,8 +127,8 @@ for accountID in ${accountIDs_list[@]} ; do
         # Lets find if RDS is in account
         rdsNames=$( getRdsArn ${ENV_NAME})
         # If no RDS was find go to another account
-        if [ -z ${rdsNames} ] ; then
-            info "INFO: There is no RDS with tag Anemometer=true in account ${accountID}"
+        if [ -z "${rdsNames}" ] ; then
+            info "INFO: There is no RDS with tags Anemometer=true and ENV=${ENV_NAME} in account ${accountID}"
         else
         # If there is RDS lets check engine and tags
             info "INFO: ${ENV_NAME} Such RDS with tag Anemometer was found : ${rdsNames}"
