@@ -1,9 +1,20 @@
+### 3.0.0
+*Changes :*
+- add receiving accountIDs from organization account
+- collecting algorithm. The slow logs will be collected with assumed role
+
+*Updates :*
+- add environment into query for filtering slowlog 
+
+*Fix :*
+- slowlogs filename format for RDS mysql engine
+
 ### 2.0.30
 *Changes :*
 - add possibility to store slow-logs to s3
 - collecting algorithm. The slow logs will be collected from one AWS account
 - realize possibility to download slowlogs from Aurora RDS (engine: aurora and aurora-mysql)
-- add code for switch on ssh for aws Fargate container
+- add code that switch on ssh in Fargate container.
 
 ---
 
