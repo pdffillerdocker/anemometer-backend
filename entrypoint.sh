@@ -146,7 +146,7 @@ for accountID in ${accountIDs_list[@]} ; do
                     for suffdate in ${suffixesdate} ; do
                         temporaryfile="/tmp/slow-${rdsName}.${suffdate}"
                         trycounter=0
-                        while [ ${trycounter} -lt 1 ] ; do
+                        while [ ${trycounter} -lt 2 ] ; do
                             info "INFO: ${ENV_NAME} ${rdsName} Downloading  ${temporaryfile}"
                             info "INFO: ${ENV_NAME} ${rdsName} Free disk space before downloading df -h " : $(df -h)
                             downloadLogs=$(downloadLog ${rdsName} slowquery/mysql-slowquery."${suffdate}" ${temporaryfile})
@@ -184,7 +184,7 @@ for accountID in ${accountIDs_list[@]} ; do
                     for suffdate in ${suffixesdatenozero} ; do
                         temporaryfile="/tmp/slow-${rdsName}.${suffdate}"
                         trycounter=0
-                        while [ ${trycounter} -lt 1 ] ; do
+                        while [ ${trycounter} -lt 2 ] ; do
                             info "INFO: ${ENV_NAME} ${rdsName} Downloading  ${temporaryfile}"
                             info "INFO: ${ENV_NAME} ${rdsName} Free disk space before downloading df -h " : $(df -h)
                             downloadLogs=$(downloadLog ${rdsName} slowquery/mysql-slowquery."${suffdate}" ${temporaryfile})
