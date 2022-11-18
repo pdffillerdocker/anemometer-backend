@@ -179,7 +179,7 @@ for accountID in ${accountIDs_list[@]} ; do
                             fi
                         done
                     done
-                else
+                else      #  finish downloading from Aurora RDS
                     nextstep="yes"
                     for suffdate in ${suffixesdatenozero} ; do
                         temporaryfile="/tmp/slow-${rdsName}.${suffdate}"
@@ -217,24 +217,24 @@ for accountID in ${accountIDs_list[@]} ; do
                             fi
                         done
                     done
-                    #Sending collected slowlogs to AnemometerDB
-                    info "INFO: ${ENV_NAME} ${rdsName} Finished downloading ${rdsName} slowlogs by hours"
-                    if [[ "${nextstep}" = "yes" && -f "${commontemporary}" ]] ; then
-                        info "INFO: ${ENV_NAME} ${rdsName}. Starting to digest collected file ${commontemporary} and add result into anemometer database"
-                        /usr/bin/pt-query-digest --user=$ANEMOMETER_MYSQL_USER --password=$ANEMOMETER_MYSQL_PASSWORD \
-                                                --review h=$ANEMOMETER_MYSQL_HOST,D=$ANEMOMETER_MYSQL_DB,t=global_query_review \
-                                                --history h=$ANEMOMETER_MYSQL_HOST,D=$ANEMOMETER_MYSQL_DB,t=global_query_review_history \
-                                                --no-report --limit=0% \
-                                                --filter=" \$event->{Bytes} = length(\$event->{arg}) and \$event->{hostname}=\"${rdsName}\"" \
-                                                ${commontemporary}
-                        statuscode=$?
-                        info "statuscode=${statuscode} of percona digest tool"
-                        if [ ${statuscode} -gt 0 ] ; then
-                            echo "CRITICAL: ${ENV_NAME} ${rdsName} slowlogs digest problem. the statuscode=${statuscode} "
-                        else
-                            info "INFO: ${ENV_NAME} ${rdsName} Digest of ${commontemporary} was successful"
-                            rm -f "${commontemporary}"
-                        fi
+                fi
+                #Sending collected slowlogs to AnemometerDB
+                info "INFO: ${ENV_NAME} ${rdsName} Finished downloading ${rdsName} slowlogs by hours"
+                if [[ "${nextstep}" = "yes" && -f "${commontemporary}" ]] ; then
+                    info "INFO: ${ENV_NAME} ${rdsName}. Starting to digest collected file ${commontemporary} and add result into anemometer database"
+                    /usr/bin/pt-query-digest --user=$ANEMOMETER_MYSQL_USER --password=$ANEMOMETER_MYSQL_PASSWORD \
+                                            --review h=$ANEMOMETER_MYSQL_HOST,D=$ANEMOMETER_MYSQL_DB,t=global_query_review \
+                                            --history h=$ANEMOMETER_MYSQL_HOST,D=$ANEMOMETER_MYSQL_DB,t=global_query_review_history \
+                                            --no-report --limit=0% \
+                                            --filter=" \$event->{Bytes} = length(\$event->{arg}) and \$event->{hostname}=\"${rdsName}\"" \
+                                            ${commontemporary}
+                    statuscode=$?
+                    info "statuscode=${statuscode} of percona digest tool"
+                    if [ ${statuscode} -gt 0 ] ; then
+                        echo "CRITICAL: ${ENV_NAME} ${rdsName} slowlogs digest problem. the statuscode=${statuscode} "
+                    else
+                        info "INFO: ${ENV_NAME} ${rdsName} Digest of ${commontemporary} was successful"
+                        rm -f "${commontemporary}"
                     fi
                 fi
             done

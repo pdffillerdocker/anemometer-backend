@@ -1,3 +1,7 @@
+### 3.0.1
+*Fix :*
+- digest for aurora-mysql and aurora engine
+
 ### 3.0.0
 *Changes :*
 - add receiving accountIDs from organization account
