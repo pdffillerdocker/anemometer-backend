@@ -12,18 +12,26 @@ Image create by launch on ECS or FARGATE container via scheduler
 
 ### Environment Variables
 
-|Name |  Description | Default value  |
-| ------------ | ------------ | ------------ |
-| ANEMOMETER_MYSQL_HOST  |The database hostname where slow logs will be stored  |   |
-| ANEMOMETER_MYSQL_USER |  Username for the master DB user |   |
-| ANEMOMETER_MYSQL_PASSWORD  | The master password  |   |
-| ANEMOMETER_MYSQL_PORT   | The port on which the DB accepts connections  |   |
-| ANEMOMETER_MYSQL_DB  | The database name |  slow_query_log |
-| ENV_ORIGIN_NAME  | The environment name where collector will be run |   |
-| REGION  | The region name |   |
-| S3_BUCKET  | The bucket name where slow log origins will be stored|   |
-| S3_SECRET  | The bucket name where credentials for AWS accounts will be located |   |
-| DEBUGLEVEL |The parameter shows more information messages of the script. It should be 0 or 1. The value 0 will show only error messages. The values 1 will show all messages.  | 0   |
+|Name | Description                                                                                                                                                       | Default value  |
+| ------------ |-------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------------|
+| ANEMOMETER_MYSQL_HOST | The database hostname where slow logs will be stored                                                                                                              |                |
+| ANEMOMETER_MYSQL_USER | Username for the master DB user                                                                                                                                   |                |
+| ANEMOMETER_MYSQL_PASSWORD | The master password                                                                                                                                               |                |
+| ANEMOMETER_MYSQL_PORT | The port on which the DB accepts connections                                                                                                                      |                |
+| ANEMOMETER_MYSQL_DB | The database name                                                                                                                                                 | slow_query_log |
+| S3_BUCKET  | The bucket name where slow log origins will be stored                                                                                                             |                |
+| SERVICE_NAME  | The service name                                                                                                                                                  |                |
+| REGION  | The region name                                                                                                                                                   |                |
+| COLLECTSLOWLOGSROLE | The role name that allows collect slow logs from RDS                                                                                                              |                |
+| LISTACCOUNTIDSROLE | The role name that allows list accountIDs from organization account                                                                                               |                |
+| ENV_NAMES_LIST | The value for Env tag                                                                                                                                             |                |
+| DEBUGLEVEL  | The parameter shows more information messages of the script. It should be 0 or 1. The value 0 will show only error messages. The values 1 will show all messages. | 0              |
+
+### Secrets Variables
+
+|Name | Description                          | Default value  |
+| ------------ |--------------------------------------|----------------|
+| STSEXTERNALIDs | The value for sts-external-id option |                |
 
 **Warning** don't change ANEMOMETER_MYSQL_DB value
 
@@ -33,4 +41,4 @@ Image create by launch on ECS or FARGATE container via scheduler
 
 ### License
 
- pdffillerdocker/anemometer-backend is licensed under the [MIT License](https://github.com/pdffillerdocker/anemometer-backend/blob/master/LICENSE)
+pdffillerdocker/anemometer-backend is licensed under the [MIT License](https://github.com/pdffillerdocker/anemometer-backend/blob/master/LICENSE)
