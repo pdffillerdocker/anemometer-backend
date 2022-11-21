@@ -10,6 +10,8 @@ This Anemometer-backend is used for
 
 Image create by launch on ECS or FARGATE container via scheduler
 
+The RDS instance must have 2 tags Anemometer=true and Env=value from ENV_NAMES_LIST
+
 ### Environment Variables
 
 |Name | Description                                                                                                                                                       | Default value  |

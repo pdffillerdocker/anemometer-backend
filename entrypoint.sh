@@ -116,13 +116,13 @@ info "INFO: allDB The list of suffixes for Aurora RDS slowlogs files ${suffixesd
 info "INFO: allDB Lets find RDS ARNs  where tag Anemometer=true"
 
 
-for accountID in ${accountIDs_list[@]} ; do
-    #clear previously assumed role
-    unsetCredentials
-    echo "account id ${accountID}"
-    #assume role for account
-    RoleToCredentials ${roleCollectSlowLogs/000000000000/$accountID} anemometer-collect-slowlogs ${stsexternalid_collect_slowlogs}
-    for ENV_NAME in ${ENV_NAMES_LIST[@]} ; do
+for ENV_NAME in ${ENV_NAMES_LIST[@]} ; do
+    for accountID in ${accountIDs_list[@]} ; do
+        #clear previously assumed role
+        unsetCredentials
+        echo "account id ${accountID}"
+        #assume role for account
+        RoleToCredentials ${roleCollectSlowLogs/000000000000/$accountID} anemometer-collect-slowlogs ${stsexternalid_collect_slowlogs}
         info "INFO: Let's start collect slow logs from account ${accountID} with tag ENV=${ENV_NAME}"
         # Lets find if RDS is in account
         rdsNames=$( getRdsArn ${ENV_NAME})
@@ -238,16 +238,16 @@ for accountID in ${accountIDs_list[@]} ; do
                     fi
                 fi
             done
-            #Uploading raw format of slowlogs to S3
-            for rdsName in ${rdsNames}; do
-                info "INFO: ${ENV_NAME} ${rdsName} Copy slow logs to s3"
-                # clear previously assumed role and upload collected files to S3 the task role
-                unsetCredentials
-                workfolder="${ENV_NAME}/${rdsName}/${datestring}"
-                cpslowToS3=$( /usr/local/bin/aws s3 cp /tmp/  s3://${S3_BUCKET}/slowlogs/${workfolder}/  --recursive --exclude "*" --include "slow-${rdsName}.*")
-                rm -r /tmp/slow-${rdsName}.*
-            done
         fi
+        #Uploading raw format of slowlogs to S3
+        for rdsName in ${rdsNames}; do
+            info "INFO: ${ENV_NAME} ${rdsName} Copy slow logs to s3"
+            # clear previously assumed role and upload collected files to S3 the task role
+            unsetCredentials
+            workfolder="${ENV_NAME}/${rdsName}/${datestring}"
+            cpslowToS3=$( /usr/local/bin/aws s3 cp /tmp/  s3://${S3_BUCKET}/slowlogs/${workfolder}/  --recursive --exclude "*" --include "slow-${rdsName}.*")
+            rm -r /tmp/slow-${rdsName}.*
+        done
     done
 done
 
